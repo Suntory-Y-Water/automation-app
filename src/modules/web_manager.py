@@ -27,6 +27,7 @@ class WebManager:
         try:
             for _ in range(count):
                 pgui.hotkey("alt", "left")
+                time.sleep(0.5)
             return True
         except Exception as e:
             return False

@@ -19,7 +19,9 @@ class GUI:
             [sg.Text("プログラムを選択してください\n", font=font_family_size)],
             [
                 sg.Text("プログラム名:", font=font_family_size, size=label_size),
-                sg.Combo(["自動再出品", "自動再出品(取引画面)"], default_value="自動再出品", key="program_name", font=font_family_size, size=input_size),
+                sg.Combo(
+                    ["自動再出品", "自動再出品(取引画面)"], default_value="自動再出品", key="program_name", font=font_family_size, size=input_size
+                ),
             ],
             [sg.Text("件数:", size=label_size, font=font_family_size), sg.InputText("", key="count", font=font_family_size, size=(10, 1))],
             [sg.Button("開始", font=font_family_size, bind_return_key=True)],

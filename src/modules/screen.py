@@ -11,7 +11,6 @@ class ScreenManagement:
         """指定した画像が読み込めない時にページをリロードする"""
         if image_path is None:
             pgui.press("F5")
-            # logger.debug("画像が読み込めないためリロードします。")
             time.sleep(wait_time)
 
     def image_locate(self, image_path: str) -> tuple:
@@ -27,4 +26,8 @@ class ScreenManagement:
 
     def check_page(self, image_path: str):
         """指定した画像が画面上に存在するか確認する"""
-        return pgui.locateOnScreen(image_path, grayscale=True, confidence=0.7) is not None
+        try:
+            is_image = pgui.locateOnScreen(image_path, grayscale=True, confidence=0.7) is not None
+            return is_image
+        except pgui.ImageNotFoundException:
+            return False

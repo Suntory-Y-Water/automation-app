@@ -29,45 +29,7 @@ class AutoRelist(BaseScript):
             except Exception as e:
                 self.logger.error(e)
                 self.logger.error("画像あり再出品を選択できませんでした。処理を終了します。")
-                break
-
-            # # 2024/02/01 現在、カテゴリページでフリーズするため、商品ページに戻る処理を追加
-            # # 2024/02/02 現在、改修されたため、カテゴリページでフリーズすることはなくなった
-            # if self.screen.check_page(image_path="./images/category_hobby_page.png") == True:
-            #     self.web.page_back(count=5)
-            #     self.logger.info("カテゴリページでフリーズしたため、商品ページに戻ります。")
-            #     time.sleep(2)
-
-            #     # 画像あり再出品ボタンとかぶらなくさせる処置
-            #     pgui.moveTo(100, 100)
-            #     if self.screen.check_page(image_path="./images/mercari_copy.png") == False:
-            #         self.logger.info("商品ページに戻ることが出来ていません。")
-            #         self.web.page_back(count=1)
-            #         time.sleep(1)
-
-            #     # 商品ページから再出品を実行するため、次へキーで編集ページへ移動
-            #     pgui.hotkey("alt", "right")
-            #     time.sleep(2)
-
-            #     try:
-            #         # カテゴリ選択するボタンを選択
-            #         select_category_image: tuple = self.screen.image_locate(image_path="./images/select_category.png")
-            #         pgui.click(select_category_image, duration=0.5)
-            #         time.sleep(2)
-            #     except Exception as e:
-            #         self.logger.error(e)
-            #         self.logger.error("カテゴリを選択できませんでした。処理を終了します。")
-            #         break
-
-            #     try:
-            #         # デュエル・マスターズを選択
-            #         select_duel_masters: tuple = self.screen.image_locate(image_path="./images/category_duel_masters.png")
-            #         pgui.click(select_duel_masters, duration=0.5)
-            #         time.sleep(2)
-            #     except Exception as e:
-            #         self.logger.error(e)
-            #         self.logger.error("デュエル・マスターズを選択できませんでした。処理を終了します。")
-            #         break
+                raise e
 
             # 出品するボタンを押すために画面一番下へスクロール
             pgui.press("end")
@@ -81,10 +43,12 @@ class AutoRelist(BaseScript):
             except Exception as e:
                 self.logger.error(e)
                 self.logger.error("出品するボタンが選択できませんでした。処理を終了します。")
-                break
+                raise e
 
+            fix_relist_check1 = self.screen.check_page(image_path="./images/syuppindekiteiruka.png")
+            fix_relist_check2 = self.screen.check_page(image_path="./images/syuppindekiteiruka.png")
             # 出品が完了しているか確認
-            if self.screen.check_page(image_path="./images/syuppindekiteiruka.png") == False:
+            if fix_relist_check1 and fix_relist_check2 == False:
                 self.logger.error("出品が完了していません。処理を終了します。")
                 break
 
@@ -96,17 +60,24 @@ class AutoRelist(BaseScript):
                 self.logger.error("商品ページに戻ることが出来ていません。処理を終了します。")
                 break
 
-            try:
+            # 商品の編集ページで通常のボタンかタイムセールのボタンかを判定
+            edit_page = self.screen.check_page(image_path="./images/syouhinnnohensyuu.png")
+            edit_time_sale_page = self.screen.check_page(image_path="./images/time-sale-or-syouhinnohensyu.png")
+            
+            if edit_page:
                 edit_item_button: tuple = self.screen.image_locate(image_path="./images/syouhinnnohensyuu.png")
-                # 画像が取得できているか
                 pgui.click(edit_item_button, duration=0.5)
-                self.logger.info("商品の編集ボタンを押下")
-                time.sleep(3)
-            except Exception as e:
-                self.logger.error(e)
-                self.logger.error("商品の編集ボタンが選択できませんでした。処理を終了します。")
-                break
+                self.logger.info("通常の商品編集ボタンを押下しました")
+            elif edit_time_sale_page:
+                edit_time_sale_button: tuple = self.screen.image_locate(image_path="./images/time-sale-or-syouhinnohensyu.png")
+                pgui.click(edit_time_sale_button, duration=0.5)
+                self.logger.info("タイムセールの編集ボタンを押下しました")
+            else:
+                raise Exception("適切な編集ボタンが見つかりませんでした。処理を中止します。")
 
+            # 処理後の待機時間
+            time.sleep(3)
+            
             pgui.press("end")
             self.logger.info("商品の編集へ移動")
             time.sleep(2)
@@ -119,7 +90,7 @@ class AutoRelist(BaseScript):
             except Exception as e:
                 self.logger.error(e)
                 self.logger.error("この商品を削除するボタンが選択できませんでした。処理を終了します。")
-                break
+                raise e
 
             try:
                 # 削除するボタンを押下
@@ -129,7 +100,7 @@ class AutoRelist(BaseScript):
             except Exception as e:
                 self.logger.error(e)
                 self.logger.error("削除するボタンが選択できませんでした。処理を終了します。")
-                break
+                raise e
 
             pgui.hotkey("ctrl", "w")
         self.logger.info("自動再出品を終了します")

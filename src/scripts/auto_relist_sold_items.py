@@ -33,44 +33,6 @@ class AutoRelistSoldItems(BaseScript):
                 self.logger.error("画像あり再出品を選択できませんでした。処理を終了します。")
                 break
 
-            # # 2024/02/01 現在、カテゴリページでフリーズするため、商品ページに戻る処理を追加
-            # # 2024/02/02 現在、改修されたため、カテゴリページでフリーズすることはなくなった
-            # if self.screen.check_page(image_path="./images/category_hobby_page.png") == True:
-            #     self.web.page_back(count=5)
-            #     self.logger.info("カテゴリページでフリーズしたため、商品ページに戻ります。")
-            #     time.sleep(2)
-
-            #     # 画像あり再出品ボタンとかぶらなくさせる処置
-            #     pgui.moveTo(100, 100)
-            #     if self.screen.check_page(image_path="./images/mercari_copy.png") == False:
-            #         self.logger.info("商品ページに戻ることが出来ていません。")
-            #         self.web.page_back(count=1)
-            #         time.sleep(1)
-
-            #     # 商品ページから再出品を実行するため、次へキーで編集ページへ移動
-            #     pgui.hotkey("alt", "right")
-            #     time.sleep(2)
-
-            #     try:
-            #         # カテゴリ選択するボタンを選択
-            #         select_category_image: tuple = self.screen.image_locate(image_path="./images/select_category.png")
-            #         pgui.click(select_category_image, duration=0.5)
-            #         time.sleep(2)
-            #     except Exception as e:
-            #         self.logger.error(e)
-            #         self.logger.error("カテゴリを選択できませんでした。処理を終了します。")
-            #         break
-
-            #     try:
-            #         # デュエル・マスターズを選択
-            #         select_duel_masters: tuple = self.screen.image_locate(image_path="./images/category_duel_masters.png")
-            #         pgui.click(select_duel_masters, duration=0.5)
-            #         time.sleep(2)
-            #     except Exception as e:
-            #         self.logger.error(e)
-            #         self.logger.error("デュエル・マスターズを選択できませんでした。処理を終了します。")
-            #         break
-
             # 出品するボタンを押すために画面一番下へスクロール
             pgui.press("end")
             time.sleep(2)

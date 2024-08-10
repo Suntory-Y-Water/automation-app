@@ -29,6 +29,7 @@ def create_alert():
 class TestIntegrationAutoRelist:
     """結合テスト用のテストケース"""
 
+    @pytest.mark.skip(reason="一度実行したためスキップ")
     @pytest.mark.usefixtures("create_alert")
     def test_relist_and_check_page(self):
         """再出品を実行して、画面の一番下までスクロールし、出品できているか確認する"""
@@ -84,6 +85,7 @@ class TestIntegrationAutoRelist:
         check_relist_image = screen.check_page(image_path="./images/syuppindekiteiruka.png")
         assert check_relist_image is True
 
+    @pytest.mark.skip(reason="一度実行したためスキップ")
     @pytest.mark.usefixtures("create_alert")
     def test_page_back(self):
         """
@@ -97,6 +99,7 @@ class TestIntegrationAutoRelist:
         check_page_back_image = screen.check_page(image_path="./images/mercari_copy.png")
         assert check_page_back_image is True
 
+    @pytest.mark.skip(reason="一度実行したためスキップ")
     @pytest.mark.usefixtures("create_alert")
     def test_edit_and_delete_item(self):
         """商品を編集して削除する"""

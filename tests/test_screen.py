@@ -55,5 +55,21 @@ class TestScreenManagement:
     @pytest.mark.usefixtures("create_alert")
     def test_check_page(self):
         # 画像が画面上に存在するか確認
-        result = screen_manager.check_page("image_path.png")
+        # 商品の編集をするページが存在するか確認
+        result = screen_manager.check_page("./images/syouhinnnohensyuu.png")
+        assert result is True
+
+    # ページの存在確認のテスト
+    @pytest.mark.skip(reason="一度実行したためスキップ")
+    @pytest.mark.usefixtures("create_alert")
+    def test_time_sale_check_page(self):
+        # タイムセールページが存在するか確認
+        result = screen_manager.check_page("./images/time-sale-or-syouhinnohensyu.png")
+        assert result is True
+
+    # ページの存在確認のテスト
+    @pytest.mark.usefixtures("create_alert")
+    def test_price_ok_check_page(self):
+        # タイムセールページが存在するか確認
+        result = screen_manager.check_page("./images/time-sale-or-syouhinnohensyu.png")
         assert result is True

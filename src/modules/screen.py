@@ -2,7 +2,7 @@ import time
 import pyautogui as pgui
 
 
-class ScreenManagement:
+class ScreenManagement():
     def __init__(self):
         self.screen_width, self.screen_height = pgui.size()
 

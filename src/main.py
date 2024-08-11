@@ -29,7 +29,7 @@ class GUI:
         return layout
 
     def start_selected_program(self, program_name, count):
-        """GUIで選択されたプログラムを実行する。"""
+        """GUIで選択されたプログラムを実行する"""
         if program_name == "自動再出品":
             auto_relist = AutoRelist()
             auto_relist.run(count)
@@ -53,7 +53,7 @@ class GUI:
                         count = int(count_str)
                         self.start_selected_program(program_name, count)
                 else:
-                    pgui.alert("件数には数字を入力してください。", title="入力エラー")
+                    pgui.alert("件数には数字を入力してください", title="入力エラー")
         window.close()
 
 

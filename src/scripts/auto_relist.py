@@ -1,7 +1,4 @@
 from .base_script import BaseScript
-from modules.logger import Logger
-from modules.screen import ScreenManagement
-from modules.web_manager import WebManager
 import pyautogui as pgui
 import time
 
@@ -11,72 +8,52 @@ class AutoRelist(BaseScript):
 
     def __init__(self):
         super().__init__()
-        self.logger = Logger.setup_logger("auto_relist")
-        self.screen = ScreenManagement()
-        self.web = WebManager()
         self.logger.info("自動再出品を開始します")
 
-    def run(self, count=1, retry_limit=3):
+    def run(self, count=1):
         self.logger.info("---------------start---------------")
         for _ in range(count):
-            self.logger.info(f"この商品を再出品します。商品URL: {self.web.get_url()}")
+            current_url = self.web.get_url()
+            self.logger.info(f"この商品を再出品します商品URL: {current_url}")
 
-            try:
-                mercari_copy_image: tuple = self.screen.image_locate(image_path="./images/mercari_copy.png")
-                pgui.click(mercari_copy_image, duration=0.5)
-                self.logger.info("画像あり再出品を選択")
-                time.sleep(13)
-            except Exception as e:
-                self.logger.error(e)
-                self.logger.error("画像あり再出品を選択できませんでした。処理を終了します。")
-                raise e
-
-            # 出品するボタンを押すために画面一番下へスクロール
-            for attempt in range(retry_limit):
-                pgui.press("end")
-                time.sleep(2)
-                try:
-                    relist_image: tuple = self.screen.image_locate(image_path="./images/syuppinnsuru.png")
-                    pgui.click(relist_image, duration=0.5)
-                    self.logger.info("出品するボタンを押下")
-                    time.sleep(2)
-                    break  # 成功した場合、ループを抜ける
-                except pgui.ImageNotFoundException as e:
-                    self.logger.error(f"出品するボタンが見つかりません。リトライ {attempt + 1}/{retry_limit}")
-                    if attempt == retry_limit - 1:
-                        self.logger.error("リトライの上限に達しました。処理を終了します。")
-                        raise e
-                    time.sleep(1)  # リトライ間の待機時間
-
-            fix_relist_check1 = self.screen.check_page(image_path="./images/syuppindekiteiruka.png")
-            fix_relist_check2 = self.screen.check_page(image_path="./images/kakakuwokimezunisyuppin.png")
-            # 出品が完了しているか確認
-            if fix_relist_check1 and fix_relist_check2 == False:
-                self.logger.error("出品が完了していません。処理を終了します。")
+            # 画像あり再出品を押下する
+            self.logger.info("画像あり再出品を押下します")
+            is_relist = self.click_and_wait(image_path="./images/mercari_copy.png")
+            if is_relist is False:
+                self.logger.error("画像あり再出品を押下できませんでした、処理を終了します")
+                break
+            
+            # 商品ページで出品するを押下する
+            is_relist_button_clicked = self.scroll_to_bottom_and_click(image_path="./images/syuppinnsuru.png")
+            if is_relist_button_clicked is False:
+                break
+            
+            # 出品するボタンを押下したあと、出品が完了できているか確認する
+            is_fix_relist = self.check_relist()
+            if is_fix_relist is False:
                 break
 
             self.web.page_back(count=8)
-            self.logger.info("出品が完了したため、商品ページに戻ります。")
+            self.logger.info("出品が完了したため、商品ページに戻ります")
             time.sleep(2)
 
-            if self.screen.check_page(image_path="./images/mercari_copy.png") == False:
-                self.logger.error("商品ページに戻ることが出来ていません。処理を終了します。")
+            if self.screen.image_locate(image_path="./images/mercari_copy.png") == None:
+                self.logger.error("商品ページに戻ることが出来ていません処理を終了します")
                 break
 
             # 商品の編集ページで通常のボタンかタイムセールのボタンかを判定
-            edit_page = self.screen.check_page(image_path="./images/syouhinnnohensyuu.png")
-            edit_time_sale_page = self.screen.check_page(image_path="./images/time-sale-or-syouhinnohensyu.png")
+            # edit_pageやedit_time_sale_pageはタプル型またはNoneで返ってくる
+            edit_page = self.screen.image_locate(image_path="./images/syouhinnnohensyuu.png")
+            edit_time_sale_page = self.screen.image_locate(image_path="./images/time-sale-or-syouhinnohensyu.png")
             
             if edit_page:
-                edit_item_button: tuple = self.screen.image_locate(image_path="./images/syouhinnnohensyuu.png")
-                pgui.click(edit_item_button, duration=0.5)
+                pgui.click(edit_page, duration=0.5)
                 self.logger.info("通常の商品編集ボタンを押下しました")
             elif edit_time_sale_page:
-                edit_time_sale_button: tuple = self.screen.image_locate(image_path="./images/time-sale-or-syouhinnohensyu.png")
-                pgui.click(edit_time_sale_button, duration=0.5)
+                pgui.click(edit_time_sale_page, duration=0.5)
                 self.logger.info("タイムセールの編集ボタンを押下しました")
             else:
-                raise Exception("適切な編集ボタンが見つかりませんでした。処理を中止します。")
+                raise Exception("適編集ボタンが見つかりませんでした、処理を中止します")
 
             # 処理後の待機時間
             time.sleep(3)
@@ -85,25 +62,18 @@ class AutoRelist(BaseScript):
             self.logger.info("商品の編集へ移動")
             time.sleep(2)
 
-            try:
-                # この商品を削除するボタンを押下
-                delete_button: tuple = self.screen.image_locate(image_path="./images/konosyouhinwosakujosuru.png")
-                pgui.click(delete_button, duration=0.5)
-                time.sleep(1)
-            except Exception as e:
-                self.logger.error(e)
-                self.logger.error("この商品を削除するボタンが選択できませんでした。処理を終了します。")
-                raise e
+            self.logger.info("この商品を削除するボタンを押下します")
+            is_delete_button = self.click_and_wait(image_path="./images/konosyouhinwosakujosuru.png", sleep_time=1)
+            if is_delete_button is False:
+                self.logger.error("この商品を削除するボタンが選択できませんでした処理を終了します")
+                break
 
-            try:
-                # 削除するボタンを押下
-                delete_popup_button: tuple = self.screen.image_locate(image_path="./images/sakujosuru.png")
-                pgui.click(delete_popup_button, duration=0.5)
-                time.sleep(2)
-            except Exception as e:
-                self.logger.error(e)
-                self.logger.error("削除するボタンが選択できませんでした。処理を終了します。")
-                raise e
+            self.logger.info("POPUPの削除するボタンを押下します")
+            is_delete_popup_button = self.click_and_wait(image_path="./images/sakujosuru.png", sleep_time=2)
+            if is_delete_popup_button is False:
+                self.logger.error("削除するボタンが選択できませんでした処理を終了します")
+                break
+
 
             pgui.hotkey("ctrl", "w")
         self.logger.info("自動再出品を終了します")

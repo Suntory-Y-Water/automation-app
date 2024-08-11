@@ -22,19 +22,18 @@ class BaseScript:
         if src_dir not in sys.path:
             sys.path.append(src_dir)
 
-    def start_relisting(self, image_path: str, sleep_time=17):
+    def click_and_wait(self, image_path: str, sleep_time=17):
         """
-        画像あり再出品を実施する
+        指定した座標を押下して、押下後に指定した秒数待機する
+        初期値は画像あり再出品で使用する17秒を指定
         """
         try:
-            mercari_copy_image: tuple = self.screen.image_locate(image_path=image_path)
-            pgui.click(mercari_copy_image, duration=0.5)
-            self.logger.info("画像あり再出品を選択しました。")
+            click_image: tuple = self.screen.image_locate(image_path=image_path)
+            pgui.click(click_image, duration=0.5)
             time.sleep(sleep_time)
             return True
         except Exception as e:
             self.logger.error(e)
-            self.logger.error("画像あり再出品を選択できませんでした。処理を終了します。")
             return False
 
     def scroll_to_bottom_and_click(self, image_path, retry_limit=3):
@@ -53,9 +52,9 @@ class BaseScript:
                 time.sleep(2)
                 return True
             except pgui.ImageNotFoundException:
-                self.logger.error(f"出品するボタンが見つかりません。リトライ {attempt + 1}/{retry_limit}")
+                self.logger.error(f"出品するボタンが見つかりませんリトライ {attempt + 1}/{retry_limit}")
                 if attempt == retry_limit - 1:
-                    self.logger.error("リトライの上限に達しました。処理を終了します。")
+                    self.logger.error("リトライの上限に達しました処理を終了します")
                     return False
         return False
 
@@ -68,6 +67,6 @@ class BaseScript:
 
         # 出品が完了しているか確認
         if fix_relist_check1 and fix_relist_check2 == None:
-            self.logger.error("出品が完了していません。処理を終了します。")
+            self.logger.error("出品が完了していません処理を終了します")
             return False
         return True

@@ -15,7 +15,7 @@ permissions:
 jobs:
   release:
     permissions:
-      # github リリースを作成するには書き込み権限が必要です。
+      # github リリースを作成するには書き込み権限が必要です
       contents: write
       # リリースノートを書くためwrite用のpermissionを付与
       pull-requests: write

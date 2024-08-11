@@ -35,7 +35,7 @@ class TestIntegrationAutoRelist:
         """再出品を実行して、画面の一番下までスクロールし、出品できているか確認する"""
 
         current_url = web.get_url()
-        logger.info(f"出品する商品は{current_url}です。")
+        logger.info(f"出品する商品は{current_url}です")
 
         mercari_copy_image: tuple = screen.image_locate(image_path="./images/mercari_copy.png")
         # 画像が取得できているか
@@ -46,13 +46,13 @@ class TestIntegrationAutoRelist:
 
         if screen.check_page(image_path="./images/category_hobby_page.png") == True:
             web.page_back(count=5)
-            logger.info("カテゴリページでフリーズしたため、商品ページに戻ります。")
+            logger.info("カテゴリページでフリーズしたため、商品ページに戻ります")
             time.sleep(2)
 
             # 画像あり再出品ボタンとかぶらなくさせる処置
             pgui.moveTo(100, 100)
             if screen.check_page(image_path="./images/mercari_copy.png") == False:
-                logger.info("商品ページに戻ることが出来ていません。")
+                logger.info("商品ページに戻ることが出来ていません")
                 web.page_back(count=1)
                 time.sleep(1)
 

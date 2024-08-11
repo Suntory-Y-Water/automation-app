@@ -43,25 +43,6 @@ class WebManager:
                 pgui.press("enter")
                 time.sleep(6)
             return True
-        except Exception as e:
-            # エラー処理
-            return False
-
-    @staticmethod
-    def printing_process():
-        """
-        印刷処理を行う。
-        印刷時、前の宛名を削除してペーストする。
-        """
-        try:
-            pgui.hotkey("ctrl", "a")
-            pgui.press("backspace")
-            time.sleep(1)
-            pgui.hotkey("ctrl", "v")
-            pgui.press("backspace")
-            pgui.press("up", presses=9)
-            pgui.press("delete", presses=5)
-            return True
-        except Exception as e:
+        except Exception:
             # エラー処理
             return False

@@ -52,7 +52,7 @@ class AutoRelistSoldItems(BaseScript):
 
             # 出品が完了しているか確認
             fix_relist_check1 = self.screen.check_page(image_path="./images/syuppindekiteiruka.png")
-            fix_relist_check2 = self.screen.check_page(image_path="./images/syuppindekiteiruka.png")
+            fix_relist_check2 = self.screen.check_page(image_path="./images/kakakuwokimezunisyuppin.png")
             # 出品が完了しているか確認
             if fix_relist_check1 and fix_relist_check2 == False:
                 self.logger.error("出品が完了していません。処理を終了します。")

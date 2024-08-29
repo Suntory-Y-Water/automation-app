@@ -13,15 +13,23 @@ class AutoRelist(BaseScript):
     def run(self, count=1):
         self.logger.info("---------------start---------------")
         for _ in range(count):
+            pgui.click(100, 100)
             current_url = self.web.get_url()
             self.logger.info(f"この商品を再出品します商品URL: {current_url}")
+            pgui.click(100, 800)
 
             # 画像あり再出品を押下する
-            self.logger.info("画像あり再出品を押下します")
             is_relist = self.click_and_wait(image_path="./images/mercari_copy.png")
             if is_relist is False:
-                self.logger.error("画像あり再出品を押下できませんでした、処理を終了します")
-                break
+                # 超メルカリ祭で再出品ボタンが見えない場合、ページをスクロールする
+                self.logger.info("画像あり再出品を押下できませんでした、ページダウンします")
+                pgui.press('pagedown')
+                time.sleep(0.3)
+                # 再度クリックを試みる
+                is_relist = self.click_and_wait(image_path="./images/mercari_copy.png")
+                if is_relist is False:
+                    self.logger.error("画像あり再出品を押下できませんでした、処理を終了します")
+                    break
             
             # 商品ページで出品するを押下する
             is_relist_button_clicked = self.scroll_to_bottom_and_click(image_path="./images/syuppinnsuru.png")
@@ -41,6 +49,7 @@ class AutoRelist(BaseScript):
                 self.logger.error("商品ページに戻ることが出来ていません処理を終了します")
                 break
 
+            pgui.press("home")
             # 商品の編集ページで通常のボタンかタイムセールのボタンかを判定
             # edit_pageやedit_time_sale_pageはタプル型またはNoneで返ってくる
             edit_page = self.screen.image_locate(image_path="./images/syouhinnnohensyuu.png")
@@ -53,7 +62,7 @@ class AutoRelist(BaseScript):
                 pgui.click(edit_time_sale_page, duration=0.5)
                 self.logger.info("タイムセールの編集ボタンを押下しました")
             else:
-                raise Exception("適編集ボタンが見つかりませんでした、処理を中止します")
+                raise Exception("編集ボタンが見つかりませんでした、処理を中止します")
 
             # 処理後の待機時間
             time.sleep(3)

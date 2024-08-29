@@ -28,7 +28,9 @@ class BaseScript:
         初期値は画像あり再出品で使用する17秒を指定
         """
         try:
-            click_image: tuple = self.screen.image_locate(image_path=image_path)
+            click_image = self.screen.image_locate(image_path=image_path)
+            if click_image == None:
+                return False
             pgui.click(click_image, duration=0.5)
             time.sleep(sleep_time)
             return True

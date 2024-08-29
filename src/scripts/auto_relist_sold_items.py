@@ -1,6 +1,6 @@
 from .base_script import BaseScript
 import pyautogui as pgui
-
+import time
 
 class AutoRelistSoldItems(BaseScript):
     """自動再出品(売れた商品)"""
@@ -12,14 +12,21 @@ class AutoRelistSoldItems(BaseScript):
     def run(self, count=1):
         self.logger.info("---------------start---------------")
         for _ in range(count):
+            pgui.click(100, 100)
             current_url = self.web.get_url()
-            self.web.go_product_page(current_url)
             self.logger.info(f"この商品を再出品します商品URL: {current_url}")
+            pgui.click(100, 800)
 
             # 画像あり再出品を押下する
             is_relist = self.click_and_wait(image_path="./images/mercari_copy.png")
             if is_relist is False:
-                break
+                # 超メルカリ祭で再出品ボタンが見えない場合、ページをスクロールする
+                pgui.press('pagedown')
+                time.sleep(0.3)
+                # 再度クリックを試みる
+                is_relist = self.click_and_wait(image_path="./images/mercari_copy.png")
+                if is_relist is False:
+                    break
             
             # 商品ページで出品するを押下する
             is_relist_button_clicked = self.scroll_to_bottom_and_click(image_path="./images/syuppinnsuru.png")

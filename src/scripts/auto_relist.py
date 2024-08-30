@@ -19,37 +19,32 @@ class AutoRelist(BaseScript):
     def run(self, count=1):
         self.logger.info("---------------start---------------")
         for _ in range(count):
-            self.logger.info(f"この商品を再出品します。商品URL: {self.web.get_url()}")
+            pgui.click(100, 100)
+            current_url = self.web.get_url()
+            self.logger.info(f"この商品を再出品します商品URL: {current_url}")
+            pgui.click(100, 800)
 
-            try:
-                mercari_copy_image: tuple = self.screen.image_locate(image_path="./images/mercari_copy.png")
-                pgui.click(mercari_copy_image, duration=0.5)
-                self.logger.info("画像あり再出品を選択")
-                time.sleep(15)
-            except Exception as e:
-                self.logger.error(e)
-                self.logger.error("画像あり再出品を選択できませんでした。処理を終了します。")
-                raise e
-
-            # 出品するボタンを押すために画面一番下へスクロール
-            pgui.press("end")
-            time.sleep(2)
-
-            try:
-                relist_image: tuple = self.screen.image_locate(image_path="./images/syuppinnsuru.png")
-                pgui.click(relist_image, duration=0.5)
-                self.logger.info("出品するボタンを押下")
-                time.sleep(2)
-            except Exception as e:
-                self.logger.error(e)
-                self.logger.error("出品するボタンが選択できませんでした。処理を終了します。")
-                raise e
-
-            fix_relist_check1 = self.screen.check_page(image_path="./images/syuppindekiteiruka.png")
-            fix_relist_check2 = self.screen.check_page(image_path="./images/syuppindekiteiruka.png")
-            # 出品が完了しているか確認
-            if fix_relist_check1 and fix_relist_check2 == False:
-                self.logger.error("出品が完了していません。処理を終了します。")
+            # 画像あり再出品を押下する
+            is_relist = self.click_and_wait(image_path="./images/mercari_copy.png")
+            if is_relist is False:
+                # 超メルカリ祭で再出品ボタンが見えない場合、ページをスクロールする
+                self.logger.info("画像あり再出品を押下できませんでした、ページダウンします")
+                pgui.press('pagedown')
+                time.sleep(0.3)
+                # 再度クリックを試みる
+                is_relist = self.click_and_wait(image_path="./images/mercari_copy.png")
+                if is_relist is False:
+                    self.logger.error("画像あり再出品を押下できませんでした、処理を終了します")
+                    break
+            
+            # 商品ページで出品するを押下する
+            is_relist_button_clicked = self.scroll_to_bottom_and_click(image_path="./images/syuppinnsuru.png")
+            if is_relist_button_clicked is False:
+                break
+            
+            # 出品するボタンを押下したあと、出品が完了できているか確認する
+            is_fix_relist = self.check_relist()
+            if is_fix_relist is False:
                 break
 
             self.web.page_back(count=8)
@@ -60,6 +55,7 @@ class AutoRelist(BaseScript):
                 self.logger.error("商品ページに戻ることが出来ていません。処理を終了します。")
                 break
 
+            pgui.press("home")
             # 商品の編集ページで通常のボタンかタイムセールのボタンかを判定
             edit_page = self.screen.check_page(image_path="./images/syouhinnnohensyuu.png")
             edit_time_sale_page = self.screen.check_page(image_path="./images/time-sale-or-syouhinnohensyu.png")
@@ -73,7 +69,8 @@ class AutoRelist(BaseScript):
                 pgui.click(edit_time_sale_button, duration=0.5)
                 self.logger.info("タイムセールの編集ボタンを押下しました")
             else:
-                raise Exception("適切な編集ボタンが見つかりませんでした。処理を中止します。")
+                raise Exception("編集ボタンが見つかりませんでした、処理を中止します")
+
 
             # 処理後の待機時間
             time.sleep(3)

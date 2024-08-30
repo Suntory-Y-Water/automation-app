@@ -1,4 +1,7 @@
 from .base_script import BaseScript
+from modules.logger import Logger
+from modules.screen import ScreenManagement
+from modules.web_manager import WebManager
 import pyautogui as pgui
 import time
 
@@ -8,6 +11,9 @@ class AutoRelist(BaseScript):
 
     def __init__(self):
         super().__init__()
+        self.logger = Logger.setup_logger("auto_relist")
+        self.screen = ScreenManagement()
+        self.web = WebManager()
         self.logger.info("自動再出品を開始します")
 
     def run(self, count=1):
@@ -42,27 +48,29 @@ class AutoRelist(BaseScript):
                 break
 
             self.web.page_back(count=8)
-            self.logger.info("出品が完了したため、商品ページに戻ります")
+            self.logger.info("出品が完了したため、商品ページに戻ります。")
             time.sleep(2)
 
-            if self.screen.image_locate(image_path="./images/mercari_copy.png") == None:
-                self.logger.error("商品ページに戻ることが出来ていません処理を終了します")
+            if self.screen.check_page(image_path="./images/mercari_copy.png") == False:
+                self.logger.error("商品ページに戻ることが出来ていません。処理を終了します。")
                 break
 
             pgui.press("home")
             # 商品の編集ページで通常のボタンかタイムセールのボタンかを判定
-            # edit_pageやedit_time_sale_pageはタプル型またはNoneで返ってくる
-            edit_page = self.screen.image_locate(image_path="./images/syouhinnnohensyuu.png")
-            edit_time_sale_page = self.screen.image_locate(image_path="./images/time-sale-or-syouhinnohensyu.png")
+            edit_page = self.screen.check_page(image_path="./images/syouhinnnohensyuu.png")
+            edit_time_sale_page = self.screen.check_page(image_path="./images/time-sale-or-syouhinnohensyu.png")
             
             if edit_page:
-                pgui.click(edit_page, duration=0.5)
+                edit_item_button: tuple = self.screen.image_locate(image_path="./images/syouhinnnohensyuu.png")
+                pgui.click(edit_item_button, duration=0.5)
                 self.logger.info("通常の商品編集ボタンを押下しました")
             elif edit_time_sale_page:
-                pgui.click(edit_time_sale_page, duration=0.5)
+                edit_time_sale_button: tuple = self.screen.image_locate(image_path="./images/time-sale-or-syouhinnohensyu.png")
+                pgui.click(edit_time_sale_button, duration=0.5)
                 self.logger.info("タイムセールの編集ボタンを押下しました")
             else:
                 raise Exception("編集ボタンが見つかりませんでした、処理を中止します")
+
 
             # 処理後の待機時間
             time.sleep(3)
@@ -71,18 +79,25 @@ class AutoRelist(BaseScript):
             self.logger.info("商品の編集へ移動")
             time.sleep(2)
 
-            self.logger.info("この商品を削除するボタンを押下します")
-            is_delete_button = self.click_and_wait(image_path="./images/konosyouhinwosakujosuru.png", sleep_time=1)
-            if is_delete_button is False:
-                self.logger.error("この商品を削除するボタンが選択できませんでした処理を終了します")
-                break
+            try:
+                # この商品を削除するボタンを押下
+                delete_button: tuple = self.screen.image_locate(image_path="./images/konosyouhinwosakujosuru.png")
+                pgui.click(delete_button, duration=0.5)
+                time.sleep(1)
+            except Exception as e:
+                self.logger.error(e)
+                self.logger.error("この商品を削除するボタンが選択できませんでした。処理を終了します。")
+                raise e
 
-            self.logger.info("POPUPの削除するボタンを押下します")
-            is_delete_popup_button = self.click_and_wait(image_path="./images/sakujosuru.png", sleep_time=2)
-            if is_delete_popup_button is False:
-                self.logger.error("削除するボタンが選択できませんでした処理を終了します")
-                break
-
+            try:
+                # 削除するボタンを押下
+                delete_popup_button: tuple = self.screen.image_locate(image_path="./images/sakujosuru.png")
+                pgui.click(delete_popup_button, duration=0.5)
+                time.sleep(2)
+            except Exception as e:
+                self.logger.error(e)
+                self.logger.error("削除するボタンが選択できませんでした。処理を終了します。")
+                raise e
 
             pgui.hotkey("ctrl", "w")
         self.logger.info("自動再出品を終了します")

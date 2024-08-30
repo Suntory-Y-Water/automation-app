@@ -1,19 +1,12 @@
-from modules.logger import Logger
-from modules.screen import ScreenManagement
-from modules.web_manager import WebManager
-import pyautogui as pgui
-import time
 import os
 import sys
+
 
 class BaseScript:
     """実行ファイルが格納されているフォルダのベースクラス"""
 
     def __init__(self):
         self.setup_path()
-        self.logger = Logger.setup_logger("auto-relist")
-        self.screen = ScreenManagement()
-        self.web = WebManager()
 
     def setup_path(self):
         """スクリプトごとにモジュールパスを設定する"""

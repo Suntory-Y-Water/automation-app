@@ -1,5 +1,6 @@
 import PySimpleGUI as sg
 import pyautogui as pgui
+from pymsgbox import alert, confirm
 from scripts.auto_relist import AutoRelist
 from scripts.auto_relist_sold_items import AutoRelistSoldItems
 
@@ -48,12 +49,12 @@ class GUI:
                 program_name = values["program_name"]
                 count_str = values["count"]
                 if count_str.isdigit():
-                    is_value = pgui.confirm(f"{program_name}を開始しますか？", title="確認")
+                    is_value = confirm(f"{program_name}を開始しますか？", title="確認")
                     if is_value == "OK":
                         count = int(count_str)
                         self.start_selected_program(program_name, count)
                 else:
-                    pgui.alert("件数には数字を入力してください。", title="入力エラー")
+                    alert("件数には数字を入力してください。", title="入力エラー")
         window.close()
 
 

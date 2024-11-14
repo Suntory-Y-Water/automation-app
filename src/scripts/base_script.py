@@ -1,5 +1,10 @@
 import os
 import sys
+import pyautogui as pgui
+import time
+from modules.logger import Logger
+from modules.screen import ScreenManagement
+from modules.web_manager import WebManager
 
 
 class BaseScript:
@@ -7,6 +12,9 @@ class BaseScript:
 
     def __init__(self):
         self.setup_path()
+        self.logger = Logger.setup_logger("auto_relist")
+        self.screen = ScreenManagement()
+        self.web = WebManager()
 
     def setup_path(self):
         """スクリプトごとにモジュールパスを設定する"""
@@ -21,7 +29,7 @@ class BaseScript:
         初期値は画像あり再出品で使用する17秒を指定
         """
         try:
-            click_image = self.screen.image_locate(image_path=image_path)
+            click_image = self.screen.check_page(image_path=image_path)
             if click_image == None:
                 return False
             pgui.click(click_image, duration=0.5)
@@ -41,7 +49,7 @@ class BaseScript:
             pgui.press("end")
             time.sleep(2)
             try:
-                relist_image: tuple = self.screen.image_locate(image_path=image_path)
+                relist_image: tuple = self.screen.check_page(image_path=image_path)
                 pgui.click(relist_image, duration=0.5)
                 self.logger.info("出品するボタンを押下")
                 time.sleep(2)
@@ -57,8 +65,8 @@ class BaseScript:
         """
         出品するボタンを押下したあと、出品が完了できているか確認する
         """
-        fix_relist_check1 = self.screen.image_locate(image_path="./images/syuppindekiteiruka.png")
-        fix_relist_check2 = self.screen.image_locate(image_path="./images/kakakuwokimezunisyuppin.png")
+        fix_relist_check1 = self.screen.check_page(image_path="./images/syuppindekiteiruka.png")
+        fix_relist_check2 = self.screen.check_page(image_path="./images/kakakuwokimezunisyuppin.png")
 
         # 出品が完了しているか確認
         if fix_relist_check1 and fix_relist_check2 == None:

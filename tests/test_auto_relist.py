@@ -37,7 +37,7 @@ class TestIntegrationAutoRelist:
         current_url = web.get_url()
         logger.info(f"出品する商品は{current_url}です")
 
-        mercari_copy_image: tuple = screen.image_locate(image_path="./images/mercari_copy.png")
+        mercari_copy_image = screen.check_page(image_path="./images/mercari_copy.png")
         # 画像が取得できているか
         assert mercari_copy_image is not None
         pgui.click(mercari_copy_image, duration=0.5)
@@ -61,13 +61,13 @@ class TestIntegrationAutoRelist:
             time.sleep(2)
 
             # カテゴリ選択するボタンが読み込めるか確認
-            select_category_image: tuple = screen.image_locate(image_path="./images/select_category.png")
+            select_category_image = screen.check_page(image_path="./images/select_category.png")
             pgui.click(select_category_image, duration=0.5)
             time.sleep(2)
             assert select_category_image is not None
 
             # デュエル・マスターズを選択できるか確認
-            select_duel_masters: tuple = screen.image_locate(image_path="./images/category_duel_masters.png")
+            select_duel_masters = screen.check_page(image_path="./images/category_duel_masters.png")
             pgui.click(select_duel_masters, duration=0.5)
             time.sleep(2)
             assert select_duel_masters is not None
@@ -76,7 +76,7 @@ class TestIntegrationAutoRelist:
         pgui.press("end")
         time.sleep(2)
 
-        relist_image: tuple = screen.image_locate(image_path="./images/syuppinnsuru.png")
+        relist_image: tuple = screen.check_page(image_path="./images/syuppinnsuru.png")
         pgui.click(relist_image, duration=0.5)
         assert relist_image is not None
         logger.info("出品するボタンを押下")
@@ -103,7 +103,7 @@ class TestIntegrationAutoRelist:
     @pytest.mark.usefixtures("create_alert")
     def test_edit_and_delete_item(self):
         """商品を編集して削除する"""
-        edit_item_button: tuple = screen.image_locate(image_path="./images/syouhinnnohensyuu.png")
+        edit_item_button = screen.check_page(image_path="./images/syouhinnnohensyuu.png")
         # 画像が取得できているか
         assert edit_item_button is not None
         pgui.click(edit_item_button, duration=0.5)
@@ -115,13 +115,13 @@ class TestIntegrationAutoRelist:
         time.sleep(2)
 
         # この商品を削除するボタンを押下
-        delete_button: tuple = screen.image_locate(image_path="./images/konosyouhinwosakujosuru.png")
+        delete_button = screen.check_page(image_path="./images/konosyouhinwosakujosuru.png")
         assert delete_button is not None
         pgui.click(delete_button, duration=0.5)
         time.sleep(1)
 
         # この商品を削除するボタンを押下
-        delete_popup_button: tuple = screen.image_locate(image_path="./images/sakujosuru.png")
+        delete_popup_button = screen.check_page(image_path="./images/sakujosuru.png")
         assert delete_popup_button is not None
         pgui.click(delete_popup_button, duration=0.5)
         time.sleep(2)

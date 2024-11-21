@@ -1,5 +1,4 @@
 import PySimpleGUI as sg
-import pyautogui as pgui
 from pymsgbox import alert, confirm
 from scripts.auto_relist import AutoRelist
 from scripts.auto_relist_sold_items import AutoRelistSoldItems
